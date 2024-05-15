@@ -1,0 +1,75 @@
+﻿@model TDBlog.ViewModels.HomeVM
+@using X.PagedList
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Home Page";
+    string thumbnailUrl = "";
+    if (Model.ThumbnailUrl == "")
+    {
+        thumbnailUrl = "/blog/assets/img/home-bg.jpg";
+    }
+    else
+    {
+        thumbnailUrl = "/thumbnails/" + Model.ThumbnailUrl;
+    }
+}
+
+
+<!-- Page Header-->
+<header class="masthead" style="background-image: url('@thumbnailUrl')">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="site-heading">
+                    <h1>@Model.Title</h1>
+                    <span class="subheading">@Model.ShortDescription</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container px-4 px-lg-5">
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-7">
+            @foreach (var post in Model.Posts!)
+            {
+                <!-- Post preview chinh-->
+                <div class="post-preview" style="display: flex;">
+                    <img class="img-fluid" src="~/thumbnails/@post.ThumbnailUrl" style="object-fit: cover; height: auto; width: 25%; flex-shrink: 0; border-radius: 10px;">
+                    <div style="flex-grow: 1; margin-left: 10px;">
+                        <a asp-controller="Blog" asp-action="Post" asp-route-slug="@post.Slug" style="display: flex;">
+                            <div style="flex-grow: 1;">
+                                <h2 class="post-title">@post.Title</h2>
+                                <h3 class="post-subtitle">@post.ShortDescription</h3>
+                            </div>
+                        </a>
+                        <div style="margin-top: 10px;">
+                            <p class="post-meta">
+                                Posted by
+                                <a href="#!">@post.ApplicationUser!.FirstName @post.ApplicationUser!.LastName</a>
+                                on @post.CreatedDate.ToShortDateString()
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Post preview phụ-->
+                <!-- Divider-->
+                <hr class="my-4" />
+            }
+
+            Page @(Model?.Posts.PageCount < Model?.Posts.PageNumber ? 0 : Model?.Posts.PageNumber) of @Model?.Posts.PageCount
+            @Html.PagedListPager(Model?.Posts, page => Url.Action("Index",
+                     new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }),
+                     new PagedListRenderOptions()
+            {
+                ContainerDivClasses = new List<string> { "d-flex justify-content-start mb-4" },
+                UlElementClasses = new List<string> { "pagination" },
+                LiElementClasses = new List<string> { "btn btn-primary mx-1 text-uppercase" },
+                ActiveLiElementClass = "active",
+            })
+        </div>
+    </div>
+</div>
+
